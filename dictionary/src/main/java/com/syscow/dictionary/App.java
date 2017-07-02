@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
+
 
 /**
  * Hello world!
@@ -20,11 +22,13 @@ public class App
     {
     	try (BufferedReader br = new BufferedReader(new FileReader("TheScribeOath.srt"))) {
     		Map<String, Integer> wordMap = new HashMap<>();
+    		WordQueue<String> doubleWordQueue = new WordQueue<>(1);
     		String line;
     		while ((line = br.readLine()) != null) {
 				List<String> words = readWordsFromALine(line);
 				for (String word : words) {
-					word = word.toLowerCase();
+					doubleWordQueue.push(word);
+					word = doubleWordQueue.getAllWords();
 					if (wordMap.containsKey(word)) {
 						wordMap.put(word, wordMap.get(word) + 1);
 					} else {
@@ -32,8 +36,11 @@ public class App
 					}
 				}
     		}
+    		WordComparator wc = new WordComparator(wordMap);
+    		Map<String, Integer> sorted_map = new TreeMap<>(wc);
+    		sorted_map.putAll(wordMap);
     		
-    		for (String word : wordMap.keySet()) {
+    		for (String word : sorted_map.keySet()) {
     			System.out.println(word + " : " + wordMap.get(word));
     		}
     		
@@ -45,7 +52,7 @@ public class App
     }
 
 	public static List<String> readWordsFromALine(String line) {
-		line = line.replaceAll("[,:;(){}=*/<>@]", " ");
+		line = line.replaceAll("[,:;(){}=*/@]", " ");
 		line = line.replaceAll("\\s+", " ");
 		line = line.replaceAll("\\s", " ");
 		line = line.replaceAll(" +", " ");
