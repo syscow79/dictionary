@@ -24,7 +24,7 @@ public class App
 				line = line.replaceAll(" +", " ");
 				Pattern pattern = Pattern.compile(" +");
 				String[] words = pattern.split(line);
-				System.out.println(words);
+				System.out.println();
     		}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
