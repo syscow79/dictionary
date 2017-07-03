@@ -12,11 +12,11 @@ public class AppTest {
 	@Test
 	public void testSimpleWordLine()
     {	
-		//when
+		//given
     	String line = "your attention";
     	List<String> wordsExceptedWords = Arrays.asList("your", "attention");
     	
-    	//other
+    	//when
     	List<String> words = App.readWordsFromALine(line);
     	
     	//then
