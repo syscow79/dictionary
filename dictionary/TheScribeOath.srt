@@ -7,7 +7,7 @@
 <font color="#E5E5E5">heavily so many of you know that I open</font>
 
 3
-00:00:16,699 --> 00:00:21,289
+00:00:16,699 --> 00:00:21,289 
 my talks<font color="#E5E5E5"> with a science</font><font color="#CCCCCC"> lecturer of some</font>
 
 4

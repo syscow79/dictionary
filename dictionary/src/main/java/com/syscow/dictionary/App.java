@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,20 +13,24 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
 
 /**
  * Hello world!
  *
  */
-public class App 
-{
-    public static void main( String[] args )
-    {
-    	try (BufferedReader br = new BufferedReader(new FileReader("TheScribeOath.srt"))) {
-    		Map<String, Integer> wordMap = new HashMap<>();
-    		WordQueue<String> doubleWordQueue = new WordQueue<>(1);
-    		String line;
-    		while ((line = br.readLine()) != null) {
+public class App {
+	public static void main(String[] args) {
+		Map<String, Integer> wordMap = new HashMap<>();
+		WordQueue<String> doubleWordQueue = new WordQueue<>(1);
+		try (BufferedReader br = new BufferedReader(
+				new FileReader("vaadin.srt")
+				//new InputStreamReader((new URL("")).openStream())
+				)) {
+			// new FileReader("TheScribeOath.srt"))
+			String line;
+			while ((line = br.readLine()) != null) {
+				line = Jsoup.parse(line).text();
 				List<String> words = readWordsFromALine(line);
 				for (String word : words) {
 					doubleWordQueue.push(word);
@@ -35,21 +41,21 @@ public class App
 						wordMap.put(word, 1);
 					}
 				}
-    		}
-    		WordComparator wc = new WordComparator(wordMap);
-    		Map<String, Integer> sorted_map = new TreeMap<>(wc);
-    		sorted_map.putAll(wordMap);
-    		
-    		for (String word : sorted_map.keySet()) {
-    			System.out.println(word + " : " + wordMap.get(word));
-    		}
-    		
+			}
+			WordComparator wc = new WordComparator(wordMap);
+			Map<String, Integer> sorted_map = new TreeMap<>(wc);
+			sorted_map.putAll(wordMap);
+
+			for (String word : sorted_map.keySet()) {
+				System.out.println(word + ":" + wordMap.get(word));
+			}
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-    }
+	}
 
 	public static List<String> readWordsFromALine(String line) {
 		line = line.replaceAll("[,:;(){}=*/@]", " ");
@@ -66,8 +72,8 @@ public class App
 		}
 		return returnWords;
 	}
-    
+
 	private static boolean containOnlyAZ(String word) {
-		return word.matches("[a-z ]+");
+		return word.matches("[A-Za-z ]+");
 	}
 }
