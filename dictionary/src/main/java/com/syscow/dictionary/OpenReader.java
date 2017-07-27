@@ -51,6 +51,7 @@ public class OpenReader {
 	}
 
 	public OpenReader(String url) throws IOException {
+		System.out.println(url);
 		this.url = new URL(url);
 		host = this.url.getHost();
 		setReader(new InputStreamReader(this.url.openStream()));
@@ -58,21 +59,16 @@ public class OpenReader {
 
 	public static void main(String[] args) throws IOException {
 		long startTime = System.currentTimeMillis();
+		Set<String> links = new HashSet<>();
 
-		text += readAllText(new OpenReader("https://www.atlassian.com/git/tutorials/"));
-		Set<String> links = getLinks(text);
-		for (String link : links) {
-			text += readAllText(new OpenReader("https://" + host + link));
-			System.out.println(link);
-		}
-		text = html2text(text);
+		text = readAllText(new OpenReader("https://www.atlassian.com/git"));
+		links.addAll(getLinks(text));
 
-		links = getLinks(text);
-		for (String link : links) {
-			text += readAllText(new OpenReader("https://" + host + link));
-			System.out.println(link);
-		}
-		text = html2text(text);
+		text = readAllText(new OpenReader("https://www.atlassian.com/jira"));
+		links.addAll(getLinks(text));
+
+		text = "";
+		links.parallelStream().forEachOrdered(OpenReader::readTextFromLink);
 
 		Map<String, Integer> wordMap = collectMultipleWords(text);
 
@@ -84,14 +80,26 @@ public class OpenReader {
 		int totalCount = 0;
 		for (String word : keySet) {
 			totalCount += wordMap.get(word);
-			// System.out.println(word + " : " + wordMap.get(word));
+			System.out.println(word + " : " + wordMap.get(word));
 			// System.out.println(word);
 		}
 
 		System.out.println("Words: " + keySet.size());
 		System.out.println("TotalCount: " + totalCount);
-		System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
 
+		System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
+	}
+
+	public static String readTextFromLink(String link){
+		String html2text = "";
+		try {
+			html2text = html2text(readAllText(new OpenReader("https://" + host + link)));
+		} catch (IOException e) {
+			System.out.println("Error : " + link);
+			e.printStackTrace();
+		}
+		text += html2text;
+		return html2text;
 	}
 
 	public static Map<String, Integer> collectMultipleWords(String texts) {
