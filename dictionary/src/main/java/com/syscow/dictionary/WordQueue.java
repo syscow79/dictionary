@@ -3,15 +3,15 @@ package com.syscow.dictionary;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WordQueue<T> {
-	List<T> queue = new ArrayList<>();
+public class WordQueue {
+	List<String> queue = new ArrayList<>();
 	Integer maxItemNumber = 0;
 	
 	public WordQueue(Integer maxItemNumber) {
 		this.maxItemNumber = maxItemNumber;
 	}
 
-	public void push(T item) {
+	public void push(String item) {
 		if (queue.size() >= maxItemNumber) {
 			queue.remove(0);
 		}
@@ -20,7 +20,7 @@ public class WordQueue<T> {
 	
 	public String getAllWords() {
 		String result = "";
-		for (T word : queue) {
+		for (String word : queue) {
 			result += word + " ";
 		}
 		result = result.replaceAll("^\\s+", "").replaceAll("\\s+$", "");
