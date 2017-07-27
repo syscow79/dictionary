@@ -17,7 +17,7 @@ public class AppTest {
     	List<String> wordsExceptedWords = Arrays.asList("your", "attention");
     	
     	//when
-    	List<String> words = App.readWordsFromALine(line);
+    	List<String> words = OpenReader.readWordsFromText(line);
     	
     	//then
     	assertEquals(wordsExceptedWords, words);
@@ -29,10 +29,11 @@ public class AppTest {
 		//when
     	String line = "<font color=\"#E5E5E5\">your attention</font>";
 
-    	List<String> wordsExceptedWords = Arrays.asList("font", "color", "your", "attention", "font");
-    	
-    	List<String> words = App.readWordsFromALine(line);
+    	List<String> wordsExceptedWords = Arrays.asList("your", "attention");
+    	String text = OpenReader.html2text(line);
+    	List<String> words = OpenReader.readWordsFromText(text);
 
+    	System.out.println(words);
     	//then
     	assertEquals(wordsExceptedWords, words);
     }

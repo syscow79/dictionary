@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,12 +38,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class OpenReader{
+public class OpenReader {
 
 	private Reader reader;
 
 	URL url;
 	static String host;
+	static String text = "";
 
 	public OpenReader() throws IOException {
 		setReader(new FileReader("src/main/resources/com_maven_maven_overview.htm"));
@@ -54,31 +57,24 @@ public class OpenReader{
 	}
 
 	public static void main(String[] args) throws IOException {
-		long startTime = System.currentTimeMillis();;
+		long startTime = System.currentTimeMillis();
 
-		String text = ""; 
-		
-		text += readAllText(new OpenReader("https://www.atlassian.com/git/tutorials/setting-up-a-repository"));
-		List<String> links = getLinks(text);
+		text += readAllText(new OpenReader("https://www.atlassian.com/git/tutorials/"));
+		Set<String> links = getLinks(text);
 		for (String link : links) {
 			text += readAllText(new OpenReader("https://" + host + link));
 			System.out.println(link);
 		}
 		text = html2text(text);
-		
-		Map<String, Integer> wordMap = new HashMap<>();
-		List<String> words = readWordsFromText(text);
-		WordQueue doubleWordQueue = new WordQueue(1);
-		
-		for (String word : words) {
-			doubleWordQueue.push(word);
-			String doubleWord = doubleWordQueue.getAllWords();
-			if (wordMap.containsKey(doubleWord)) {
-				wordMap.put(doubleWord, wordMap.get(doubleWord) + 1);
-			} else {
-				wordMap.put(doubleWord, 1);
-			}
+
+		links = getLinks(text);
+		for (String link : links) {
+			text += readAllText(new OpenReader("https://" + host + link));
+			System.out.println(link);
 		}
+		text = html2text(text);
+
+		Map<String, Integer> wordMap = collectMultipleWords(text);
 
 		WordComparator wc = new WordComparator(wordMap);
 		Map<String, Integer> sorted_map = new TreeMap<>(wc);
@@ -88,14 +84,31 @@ public class OpenReader{
 		int totalCount = 0;
 		for (String word : keySet) {
 			totalCount += wordMap.get(word);
-			//System.out.println(word + " : " + wordMap.get(word));
-			//System.out.println(word);
+			// System.out.println(word + " : " + wordMap.get(word));
+			// System.out.println(word);
 		}
-		
+
 		System.out.println("Words: " + keySet.size());
 		System.out.println("TotalCount: " + totalCount);
 		System.out.println("Time: " + (System.currentTimeMillis() - startTime) + "ms");
 
+	}
+
+	public static Map<String, Integer> collectMultipleWords(String texts) {
+		Map<String, Integer> wordMap = new HashMap<>();
+		List<String> words = readWordsFromText(texts);
+		WordQueue doubleWordQueue = new WordQueue(1);
+
+		for (String word : words) {
+			doubleWordQueue.push(word);
+			String doubleWord = doubleWordQueue.getAllWords();
+			if (wordMap.containsKey(doubleWord)) {
+				wordMap.put(doubleWord, wordMap.get(doubleWord) + 1);
+			} else {
+				wordMap.put(doubleWord, 1);
+			}
+		}
+		return wordMap;
 	}
 
 	private static String readAllText(OpenReader reader) {
@@ -116,19 +129,24 @@ public class OpenReader{
 		return Jsoup.parse(Jsoup.parse(html).text()).text();
 	}
 
-	public static List<String> getLinks(String html) {
+	public static Set<String> getLinks(String html) {
 		Document doc = Jsoup.parse(html);
-		Elements links = doc.select("a[href]"); 
-		List<String> linkList = new ArrayList<>();
+		Elements links = doc.select("a[href]");
+		Set<String> linkSet = new HashSet<>();
+
 		for (Element link : links) {
 			String linkhref = link.attr("href");
-		    if (linkhref.startsWith("/")) {
-		    	linkList.add(linkhref);
-		    }
+			if (linkhref.startsWith("/")) {
+				if (linkhref.indexOf('#') > 0) {
+					linkhref = linkhref.substring(0, linkhref.indexOf('#'));
+				}
+				linkSet.add(linkhref);
+			}
 		}
-		return linkList;
+
+		return linkSet;
 	}
-	
+
 	public static List<String> readWordsFromText(String line) {
 		line = line.replaceAll("[,:;(){}=*/@]", " ");
 		line = line.replaceAll("\\s+", " ");
