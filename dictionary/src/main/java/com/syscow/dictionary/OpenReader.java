@@ -61,14 +61,15 @@ public class OpenReader {
 		long startTime = System.currentTimeMillis();
 		Set<String> links = new HashSet<>();
 
-		text = readAllText(new OpenReader("https://www.atlassian.com/git"));
-		links.addAll(getLinks(text));
+		//text = readAllText(new OpenReader("https://confluence.atlassian.com/agile/jira-agile-user-s-guide/jira-agile-tutorials"));
+		//links.addAll(getLinks(text));
 
-		text = readAllText(new OpenReader("https://www.atlassian.com/jira"));
+		text = readAllText(new OpenReader("http://www.vogella.com/tutorials/Git/article.html"));
+		System.out.println(text);
 		links.addAll(getLinks(text));
 
 		text = "";
-		links.parallelStream().forEachOrdered(OpenReader::readTextFromLink);
+		links.parallelStream().forEach(OpenReader::readTextFromLink);
 
 		Map<String, Integer> wordMap = collectMultipleWords(text);
 
